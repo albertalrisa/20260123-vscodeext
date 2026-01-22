@@ -16,6 +16,13 @@ TBA!
 
 <!-- [PDF with slide notes](./generated/20250804-practical-css.pdf?raw=true) -->
 
+## Sample Extension Code
+
+Sample extension code can be found in `snkrdunk-lt` directory.
+
+To test running the extension, open the project in Visual Studio Code, then press F5.
+VS Code should be able to automatically build and run the extension.
+
 ## Initializing
 
 1. If you'd like to run the presentation locally, install dependencies by running: `pnpm i`
