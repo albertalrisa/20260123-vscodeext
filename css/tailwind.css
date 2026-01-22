@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&family=Special+Gothic+Expanded+One&display=swap');
-@import 'tailwindcss';
+@import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&family=Special+Gothic+Expanded+One&display=swap");
+@import "tailwindcss";
 
 @source "../js/**/*.js";
 @source "../index.html";
@@ -9,12 +9,13 @@
 }
 
 @theme {
-  --font-sans: 'Rubik', ui-sans-serif, system-ui, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-sans:
+    "Rubik", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 @theme inline {
-  --font-expanded: 'Special Gothic Expanded One', var(--font-sans);
+  --font-expanded: "Special Gothic Expanded One", var(--font-sans);
 }
 
 html.print-pdf .reveal [hidden] {
@@ -26,7 +27,7 @@ html.print-pdf .reveal [hidden] {
     font-family: var(--font-sans);
   }
 
-  .print-pdf [hidden]:where(:not([hidden='until-found'])) {
+  .print-pdf [hidden]:where(:not([hidden="until-found"])) {
     display: block !important;
   }
 }
@@ -85,18 +86,22 @@ html body .reveal {
   --glow-color: #fff;
 
   &::before {
-    content: '';
+    content: "";
     @apply absolute inset-0 rounded -z-10;
     padding: 1px;
     background: linear-gradient(180deg, transparent 0%, var(--glow-color) 80%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
   }
 
   &::after {
-    content: '';
+    content: "";
     @apply absolute -bottom-1/4 left-1/2 -translate-x-1/2 w-3/4 h-1/2 -z-10 rounded-full brightness-125 blur-2xl;
     background: var(--glow-color);
     opacity: 0.4;
@@ -109,7 +114,7 @@ html body .reveal {
 }
 
 .shiki {
-    width: 100%;
+  width: 100%;
 }
 
 /* .hover-card {
