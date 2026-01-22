@@ -1,0 +1,1833 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <title>Quick Guide to Building Visual Studio Code Extension</title>
+
+    <link rel="stylesheet" href="dist/tailwind.css" />
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/black.css" />
+
+    <!-- Theme used for syntax highlighted code -->
+    <link rel="stylesheet" href="plugin/highlight/monokai.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section class="slide">
+          <div>
+            <div class="section-header w-full">
+              <div class="-rotate-12 relative left-0 w-fit">
+                <div class="text-xs -mb-1.5">(Hopefully)</div>
+                <div class="font-bold text-lg text-red-500 animate-pulse">
+                  Quick Guide
+                </div>
+              </div>
+              <div class="text-2xl w-full text-center">
+                to Building
+                <div class="inline-flex align-middle h-8 items-center">
+                  <editor-logos />
+                </div>
+                Extension
+              </div>
+            </div>
+            <div class="mt-8 text-sm">@albertalrisa</div>
+          </div>
+          <div class="flex justify-between text-[0.5rem] px-6 mt-4">
+            <div>SODA Inc. 勉強会</div>
+            <div>Jan 23rd, 2026</div>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header">We'll be trying 3 things:</div>
+          <div class="grid grid-cols-3 gap-2 w-full">
+            <div
+              class="glow-card p-1.5 min-h-40 flex items-end relative fragment"
+              style="--glow-color: #f97316"
+            >
+              <img
+                src="./assets/vsc_command.png"
+                alt="Command"
+                class="m-0! absolute top-1 left-px right-px mask-radial"
+              />
+              <div class="text-sm">Command</div>
+            </div>
+            <div
+              class="glow-card p-1.5 min-h-40 flex items-end relative fragment"
+              style="--glow-color: #00aeff"
+            >
+              <img
+                src="./assets/vsc_codelens.png"
+                alt="CodeLens"
+                class="m-0! absolute top-1 left-px right-px mask-radial"
+              />
+              <div class="text-sm">CodeLens</div>
+            </div>
+            <div
+              class="glow-card p-1.5 min-h-40 flex items-end relative fragment"
+              style="--glow-color: #cc00ff"
+            >
+              <img
+                src="./assets/vsc_autocomplete.png"
+                alt="Autocompletion"
+                class="m-0! absolute top-1 left-px right-px mask-radial"
+              />
+              <div class="text-sm">Autocompletion</div>
+            </div>
+          </div>
+          <style>
+            .glow-card.fragment:not(.current-fragment) {
+              filter: grayscale(0.7);
+            }
+          </style>
+        </section>
+        <section class="slide">
+          <div class="section-header">We won't be touching:</div>
+          <spotlight-cards class="fragment">
+            <div class="grid grid-cols-3 gap-1 auto-rows-fr">
+              <div
+                class="spotlight-card"
+                style="--spotlight-color: rgb(255 214 9 / 80)"
+              >
+                CodeAction 💡
+              </div>
+              <div
+                class="spotlight-card"
+                style="--spotlight-color: rgb(0 122 204 / 80)"
+              >
+                Language Server Protocol
+              </div>
+              <div class="spotlight-card">Snippets</div>
+              <div class="spotlight-card">Theme</div>
+              <div class="spotlight-card">Custom Editor</div>
+              <div class="spotlight-card">Webview</div>
+              <div class="spotlight-card">Publishing</div>
+              <div class="col-span-2 text-xs text-start px-0.5 py-2">
+                if you're interested in any of these, you can explore the
+                <a href="https://github.com/microsoft/vscode-extension-samples">
+                  vscode-extension-samples
+                </a>
+                repository
+              </div>
+            </div>
+          </spotlight-cards>
+          <style>
+            .spotlight-card {
+              --color: var(--spotlight-color, #fff);
+              border: 1px solid
+                color-mix(in srgb, var(--color) 20%, transparent);
+              padding: 0.25rem;
+              font-size: 0.875rem;
+              line-height: 1.25rem;
+              display: inline-flex;
+              justify-content: center;
+              align-items: center;
+              transition-property: color, background-color, border-color;
+              transition-duration: 300ms;
+              transition-timing-function: ease-out;
+            }
+            .spotlight-card:hover {
+              background-color: color-mix(
+                in srgb,
+                var(--color) 10%,
+                transparent
+              );
+            }
+          </style>
+        </section>
+        <section class="slide">
+          <div class="section-header">Let's start!</div>
+          <div class="fragment">
+            <!-- prettier-ignore -->
+            <code data-trim class="shiki text-xl" data-lang="bash">
+              npx \
+              --package yo \
+              --package generator-code \
+              -- yo code
+            </code>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header">We'll be using this setup</div>
+          <ul class="fragment flex flex-col items-start w-full px-2">
+            <li>TypeScript</li>
+            <li>esbuild</li>
+            <li>pnpm</li>
+          </ul>
+        </section>
+        <section class="slide">
+          <img
+            src="./assets/vsce18.gif"
+            alt="Setting up Visual Studio Code Extension project"
+          />
+        </section>
+        <section class="slide">
+          <div class="section-header">Install the extensions!</div>
+          <div class="fragment flex flex-col gap-1 items-start w-full p-3">
+            <div>To help VS Code parse esbuild errors</div>
+            <a
+              class="ml-2"
+              href="https://marketplace.visualstudio.com/items?itemName=connor4312.esbuild-problem-matchers"
+            >
+              esbuild Problem Matchers
+            </a>
+            <div class="mt-4">For running tests</div>
+            <a
+              class="ml-2"
+              href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.extension-test-runner"
+            >
+              Extension Test Runner
+            </a>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="grid w-full gap-4" style="grid-template-columns: 1fr 2fr">
+            <div
+              class="glow-card p-1.5 min-h-40 flex items-end relative"
+              style="--glow-color: #f97316"
+            >
+              <img
+                src="./assets/vsc_command.png"
+                alt="Command"
+                class="m-0! absolute top-1 left-px right-px mask-radial"
+              />
+            </div>
+            <div class="text-left flex flex-col justify-end py-8">
+              <div class="text-2xl">Command</div>
+              <div class="text-sm">⌘ command + ⇧ shift + P</div>
+            </div>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="flex flex-col w-full items-start">
+            <img src="./assets/command.png" alt="VS Code Command Palette" />
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header text-left">It's as simple as</div>
+          <div class="flex flex-col w-full items-start fragment">
+            <!-- prettier-ignore -->
+            <code data-trim class="shiki" data-lang="ts">
+              vscode
+                .commands
+                .registerCommand(
+                  'snkrdunk-lt.hi',
+                  () => {},
+                )
+            </code>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header text-left">
+            and registering it in <code>package.json</code>
+          </div>
+          <div class="flex flex-col w-full items-start fragment">
+            <!-- prettier-ignore -->
+            <code data-trim class="shiki" data-lang="json">
+              "contributes": { 
+                "commands": [ 
+                  { 
+                    "command": "snkrdunk-lt.hi",
+                    "title": "SNKRDUNK LT: Hi!" 
+                  } 
+                ] 
+              },
+            </code>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header">
+            <div class="inline-flex items-center gap-2">
+              <div
+                class="inline-flex px-2 py-1 items-center gap-2 border border-white/60 rounded"
+              >
+                <div
+                  class="h-2 w-2 bg-red-700 animate-pulse rounded-full"
+                ></div>
+                LIVE
+              </div>
+              <div>Demo</div>
+            </div>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header">
+            But that's not the only way commands are used.
+          </div>
+        </section>
+        <section class="slide">
+          <div class="grid w-full gap-4" style="grid-template-columns: 1fr 2fr">
+            <div
+              class="glow-card p-1.5 min-h-40 flex items-end relative"
+              style="--glow-color: #00aeff"
+            >
+              <img
+                src="./assets/vsc_codelens.png"
+                alt="CodeLens"
+                class="m-0! absolute top-1 left-px right-px mask-radial"
+              />
+            </div>
+            <div class="text-left flex flex-col justify-end py-8">
+              <div class="text-2xl">CodeLens</div>
+              <div class="text-sm">The thing on top of your code</div>
+            </div>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="flex flex-col w-full items-start">
+            <img src="./assets/codelens.png" alt="VS Code CodeLens" />
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header text-left">
+            CodeLenses are command calls placed in a specific location
+          </div>
+          <div class="flex flex-col w-full items-start fragment">
+            <!-- prettier-ignore -->
+            <code data-trim class="shiki" data-lang="ts">
+              class HiCodeLensProvider implements vscode.CodeLensProvider {
+                provideCodeLenses(
+                  document: vscode.TextDocument,
+                  token: vscode.CancellationToken,
+                ): vscode.ProviderResult&lt;vscode.CodeLens[]&gt; {
+                  const range = new vscode.Range(0, 0, 0, 0)
+                  const command: vscode.Command = {
+                    title: '$(person) Say hi!',
+                    commmand: 'snkrdunk-lt.hi',
+                    arguments: [],
+                    tooltip: 'Say hi. Not really that useful.',
+                  }
+                  return [
+                    new vscode.CodeLens(range, command)
+                  ]
+                }
+              }
+            </code>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header text-left">
+            When registering, we can set on which files it should run
+          </div>
+          <div class="flex flex-col w-full items-start fragment">
+            <!-- prettier-ignore -->
+            <code data-trim class="shiki" data-lang="ts">
+              const lens = new HiCodeLensProvider()
+              context.subscriptions.push(
+                vscode.languages.registerCodeLensProvider(
+                  [
+                    { scheme: 'file', pattern: '**/*.go' },
+                  ],
+                  lens,
+                ),
+              )
+            </code>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header text-left">
+            We also want additional activation trigger in
+            <code>package.json</code>
+          </div>
+          <div class="flex flex-col w-full items-start fragment">
+            <!-- prettier-ignore -->
+            <code data-trim class="shiki" data-lang="json">
+              "activationEvents": [
+                "onLanguage:go"
+              ],
+            </code>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header">
+            <div class="inline-flex items-center gap-2">
+              <div
+                class="inline-flex px-2 py-1 items-center gap-2 border border-white/60 rounded"
+              >
+                <div
+                  class="h-2 w-2 bg-red-700 animate-pulse rounded-full"
+                ></div>
+                LIVE
+              </div>
+              <div>Demo</div>
+            </div>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="grid w-full gap-4" style="grid-template-columns: 1fr 2fr">
+            <div
+              class="glow-card p-1.5 min-h-40 flex items-end relative"
+              style="--glow-color: #cc00ff"
+            >
+              <img
+                src="./assets/vsc_autocomplete.png"
+                alt="Autocompletion"
+                class="m-0! absolute top-1 left-px right-px mask-radial"
+              />
+            </div>
+            <div class="text-left flex flex-col justify-end py-8">
+              <div class="text-2xl">Autocompletion</div>
+              <div class="text-sm">⌃ control + space</div>
+            </div>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="flex flex-col w-full items-start">
+            <img
+              src="./assets/autocompletion.png"
+              alt="VS Code Autocompletion"
+            />
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header text-left">
+            We can inject custom autocomplete by returning a list of suggestions
+          </div>
+          <div class="flex flex-col w-full items-start fragment">
+            <!-- prettier-ignore -->
+            <code data-trim class="shiki" data-lang="ts">
+              class HiCompletionProvider implements vscode.CompletionItemProvider {
+                provideCompletionItems(
+                  document: vscode.TextDocument,
+                  position: vscode.Position, 
+                  token: vscode.CancellationToken, 
+                  context: vscode.CompletionContext,
+                ): vscode.ProviderResult&lt;vscode.CompletionItem[] | vscode.CompletionList&lt;vscode.CompletionItem&gt;&gt; {
+                  return [
+                    {
+                      label: 'Say hi',
+                      insertText: 'Hi, ',
+                      kind: vscode.CompletionItemKind.Text,
+                      documentation: 'Say hi! Why would you use autocomplete for this.',
+                    }
+                  ]
+                }
+              }
+            </code>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header text-left">
+            Registered similar to a CodeLens but with trigger character added
+          </div>
+          <div class="flex flex-col w-full items-start fragment">
+            <!-- prettier-ignore -->
+            <code data-trim class="shiki" data-lang="ts">
+              const completion = new HiCompletionProvider()
+              context.subscriptions.push(
+                vscode.languages.registerCompletionItemProvider(
+                  [
+                    { scheme: 'file', pattern: '**/*.go' },
+                  ],
+                  completion,
+                  '@',
+                  '(',
+                ),
+              )
+            </code>
+          </div>
+        </section>
+        <section class="slide">
+          <div class="section-header">
+            <div class="inline-flex items-center gap-2">
+              <div
+                class="inline-flex px-2 py-1 items-center gap-2 border border-white/60 rounded"
+              >
+                <div
+                  class="h-2 w-2 bg-red-700 animate-pulse rounded-full"
+                ></div>
+                LIVE
+              </div>
+              <div>Demo</div>
+            </div>
+          </div>
+        </section>
+        <section>
+          <div class="section-header">
+            <div class="section-header text-xl">Questions?</div>
+          </div>
+        </section>
+        <section>
+          <div class="section-header">Further Reading & Resources</div>
+          <div class="flex flex-col text-left px-4">
+            <a href="https://code.visualstudio.com/api">
+              Documentation on Visual Studio Code Extension Development
+            </a>
+            <a
+              href="https://code.visualstudio.com/api/references/vscode-api"
+              class="ml-4"
+            >
+              API Reference
+            </a>
+            <a
+              href="https://code.visualstudio.com/api/references/icons-in-labels"
+              class="ml-4"
+            >
+              The icons!
+            </a>
+            <a href="https://github.com/microsoft/vscode-extension-samples">
+              vscode-extension-samples Repository
+            </a>
+          </div>
+        </section>
+        <section>
+          <div class="section-header">
+            <div class="text-xl">Thank you!</div>
+            <div class="mt-3 text-[0.6rem] text-left flex gap-4">
+              <div class="aspect-square">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  xml:space="preserve"
+                  viewBox="0 0 1000 1000"
+                  class="h-20"
+                >
+                  <svg xml:space="preserve" viewBox="50 50 720 720">
+                    <path fill="#FFF" d="M0 0h820v820H0z" />
+                    <circle cx="310" cy="90" r="9.091" />
+                    <circle cx="350" cy="90" r="9.091" />
+                    <path d="M340.909 90h18.182v10h-18.182z" />
+                    <circle cx="430" cy="90" r="9.091" />
+                    <path d="M420.909 90h18.182v10h-18.182z" />
+                    <circle cx="510" cy="90" r="9.091" />
+                    <circle cx="570" cy="90" r="9.091" />
+                    <path d="M560.909 90h18.182v10h-18.182z" />
+                    <circle cx="330" cy="110" r="9.091" />
+                    <path d="M330 100.909h10v20.909h-10z" />
+                    <path d="M320.909 110h18.182v10h-18.182z" />
+                    <circle cx="350" cy="110" r="9.091" />
+                    <path d="M340 100.909h10v18.182h-10z" />
+                    <path d="M340.909 100h18.182v10h-18.182z" />
+                    <path d="M350 100.909h10v18.182h-10z" />
+                    <path d="M340 110h19.091v10H340z" />
+                    <circle cx="370" cy="110" r="9.091" />
+                    <path d="M360 100.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="390" cy="110" r="9.091" />
+                    <path d="M380 100.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="410" cy="110" r="9.091" />
+                    <path d="M400 100.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M400.909 110h18.182v10h-18.182z" />
+                    <circle cx="430" cy="110" r="9.091" />
+                    <path d="M420 100.909h10v18.182h-10z" />
+                    <path
+                      d="M420.909 100h18.182v10h-18.182zM420 110h19.091v10H420z"
+                    />
+                    <circle cx="530" cy="110" r="9.091" />
+                    <path d="M530 100.909h10v18.182h-10z" />
+                    <circle cx="550" cy="110" r="9.091" />
+                    <path d="M540 100.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M540.909 110h18.182v10h-18.182z" />
+                    <circle cx="570" cy="110" r="9.091" />
+                    <path d="M560 100.909h10v18.182h-10z" />
+                    <path d="M560.909 100h18.182v10h-18.182z" />
+                    <circle cx="250" cy="130" r="9.091" />
+                    <path d="M240.909 130h18.182v10h-18.182z" />
+                    <circle cx="310" cy="130" r="9.091" />
+                    <path d="M310 120.909h10v18.182h-10z" />
+                    <circle cx="330" cy="130" r="9.091" />
+                    <path d="M320 120.909h10v18.182h-10z" />
+                    <path d="M320.909 120H340v10h-19.091z" />
+                    <path d="M330 120.909h10v18.182h-10z" />
+                    <circle cx="350" cy="130" r="9.091" />
+                    <path d="M340 120h10v19.091h-10z" />
+                    <path d="M340.909 120h18.182v10h-18.182z" />
+                    <circle cx="410" cy="130" r="9.091" />
+                    <path d="M400.909 120H420v10h-19.091z" />
+                    <path d="M410 120.909h10v18.182h-10z" />
+                    <path d="M400.909 130h18.182v10h-18.182z" />
+                    <circle cx="430" cy="130" r="9.091" />
+                    <path d="M420 120h10v19.091h-10z" />
+                    <path d="M420.909 120h18.182v10h-18.182z" />
+                    <path d="M430 120.909h10v18.182h-10z" />
+                    <circle cx="450" cy="130" r="9.091" />
+                    <path d="M440 120.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="470" cy="130" r="9.091" />
+                    <path d="M460 120.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="490" cy="130" r="9.091" />
+                    <path d="M480 120.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="510" cy="130" r="9.091" />
+                    <path d="M500 120.909h10v18.182h-10z" />
+                    <circle cx="550" cy="130" r="9.091" />
+                    <path d="M540.909 120h18.182v10h-18.182z" />
+                    <circle cx="250" cy="150" r="9.091" />
+                    <path d="M240.909 140h18.182v10h-18.182z" />
+                    <path d="M250 140.909h10v18.182h-10z" />
+                    <path d="M240.909 150h18.182v10h-18.182z" />
+                    <circle cx="270" cy="150" r="9.091" />
+                    <path d="M260 140.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="290" cy="150" r="9.091" />
+                    <path d="M280 140.909h10v18.182h-10z" />
+                    <path d="M280.909 150h18.182v10h-18.182z" />
+                    <circle cx="370" cy="150" r="9.091" />
+                    <path d="M370 140.909h10v18.182h-10z" />
+                    <circle cx="390" cy="150" r="9.091" />
+                    <path d="M380 140.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M380.909 150h18.182v10h-18.182z" />
+                    <circle cx="410" cy="150" r="9.091" />
+                    <path d="M400 140.909h10v18.182h-10z" />
+                    <path d="M400.909 140h18.182v10h-18.182z" />
+                    <circle cx="250" cy="170" r="9.091" />
+                    <path
+                      d="M240.909 160h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="290" cy="170" r="9.091" />
+                    <path d="M280.909 160h18.182v10h-18.182z" />
+                    <path d="M290 160.909h10v18.182h-10z" />
+                    <circle cx="310" cy="170" r="9.091" />
+                    <path d="M300 160.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="330" cy="170" r="9.091" />
+                    <path d="M320 160.909h10v18.182h-10z" />
+                    <circle cx="390" cy="170" r="9.091" />
+                    <path
+                      d="M380.909 160h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="450" cy="170" r="9.091" />
+                    <circle cx="510" cy="170" r="9.091" />
+                    <path d="M510 160.909h10v18.182h-10z" />
+                    <circle cx="530" cy="170" r="9.091" />
+                    <path d="M520 160.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M520.909 170h18.182v10h-18.182z" />
+                    <circle cx="550" cy="170" r="9.091" />
+                    <path d="M540 160.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="570" cy="170" r="9.091" />
+                    <path d="M560 160.909h10v18.182h-10z" />
+                    <circle cx="250" cy="190" r="9.091" />
+                    <path d="M240.909 180h18.182v10h-18.182z" />
+                    <path d="M250 180.909h10v18.182h-10z" />
+                    <path d="M240.909 190h18.182v10h-18.182z" />
+                    <circle cx="270" cy="190" r="9.091" />
+                    <path d="M260 180.909h10v18.182h-10z" />
+                    <circle cx="350" cy="190" r="9.091" />
+                    <path d="M350 180.909h10v18.182h-10z" />
+                    <circle cx="370" cy="190" r="9.091" />
+                    <path d="M360 180.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M360.909 190h18.182v10h-18.182z" />
+                    <circle cx="390" cy="190" r="9.091" />
+                    <path d="M380 180.909h10v18.182h-10z" />
+                    <path d="M380.909 180h18.182v10h-18.182z" />
+                    <path d="M390 180.909h10v18.182h-10z" />
+                    <circle cx="410" cy="190" r="9.091" />
+                    <path d="M400 180.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M400.909 190h18.182v10h-18.182z" />
+                    <circle cx="430" cy="190" r="9.091" />
+                    <path d="M420 180.909h10v18.182h-10z" />
+                    <circle cx="530" cy="190" r="9.091" />
+                    <path
+                      d="M520.909 180h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="250" cy="210" r="9.091" />
+                    <path
+                      d="M240.909 200h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="290" cy="210" r="9.091" />
+                    <path d="M280.909 210h18.182v10h-18.182z" />
+                    <circle cx="330" cy="210" r="9.091" />
+                    <path d="M320.909 210h18.182v10h-18.182z" />
+                    <circle cx="370" cy="210" r="9.091" />
+                    <path d="M360.909 200h18.182v10h-18.182z" />
+                    <circle cx="410" cy="210" r="9.091" />
+                    <path d="M400.909 200h18.182v10h-18.182z" />
+                    <circle cx="450" cy="210" r="9.091" />
+                    <path d="M440.909 210h18.182v10h-18.182z" />
+                    <circle cx="490" cy="210" r="9.091" />
+                    <circle cx="530" cy="210" r="9.091" />
+                    <path
+                      d="M520.909 200h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="570" cy="210" r="9.091" />
+                    <circle cx="250" cy="230" r="9.091" />
+                    <path d="M240.909 220h18.182v10h-18.182z" />
+                    <path d="M250 220.909h10v18.182h-10z" />
+                    <circle cx="270" cy="230" r="9.091" />
+                    <path d="M260 220.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M260.909 230h18.182v10h-18.182z" />
+                    <circle cx="290" cy="230" r="9.091" />
+                    <path d="M280 220.909h10v18.182h-10z" />
+                    <path d="M280.909 220h18.182v10h-18.182z" />
+                    <path d="M290 220.909h10v18.182h-10z" />
+                    <circle cx="310" cy="230" r="9.091" />
+                    <path d="M300 220.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M300.909 230h18.182v10h-18.182z" />
+                    <circle cx="330" cy="230" r="9.091" />
+                    <path d="M320 220.909h10v18.182h-10z" />
+                    <path d="M320.909 220h18.182v10h-18.182z" />
+                    <path d="M330 220.909h10v18.182h-10z" />
+                    <circle cx="350" cy="230" r="9.091" />
+                    <path d="M340 220.909h10v18.182h-10z" />
+                    <circle cx="390" cy="230" r="9.091" />
+                    <path d="M380.909 230h18.182v10h-18.182z" />
+                    <circle cx="430" cy="230" r="9.091" />
+                    <path d="M430 220.909h10v18.182h-10z" />
+                    <circle cx="450" cy="230" r="9.091" />
+                    <path d="M440 220.909h10v18.182h-10z" />
+                    <path d="M440.909 220h18.182v10h-18.182z" />
+                    <circle cx="510" cy="230" r="9.091" />
+                    <path d="M510 220.909h10v20.909h-10z" />
+                    <path d="M500.909 230h18.182v10h-18.182z" />
+                    <circle cx="530" cy="230" r="9.091" />
+                    <path d="M520 220.909h10v18.182h-10z" />
+                    <path d="M520.909 220h18.182v10h-18.182z" />
+                    <path d="M530 220.909h10v18.182h-10z" />
+                    <path d="M520 230h19.091v10H520z" />
+                    <circle cx="550" cy="230" r="9.091" />
+                    <path d="M540 220.909h10v18.182h-10z" />
+                    <circle cx="90" cy="250" r="9.091" />
+                    <path d="M80.909 250h18.182v10H80.909z" />
+                    <circle cx="130" cy="250" r="9.091" />
+                    <path d="M130 240.909h10v18.182h-10z" />
+                    <circle cx="150" cy="250" r="9.091" />
+                    <path d="M140 240.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M140.909 250h18.182v10h-18.182z" />
+                    <circle cx="170" cy="250" r="9.091" />
+                    <path d="M160 240.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="190" cy="250" r="9.091" />
+                    <path d="M180 240.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M180.909 250h18.182v10h-18.182z" />
+                    <circle cx="210" cy="250" r="9.091" />
+                    <path d="M200 240.909h10v18.182h-10z" />
+                    <circle cx="270" cy="250" r="9.091" />
+                    <path d="M260.909 240h18.182v10h-18.182z" />
+                    <circle cx="310" cy="250" r="9.091" />
+                    <path
+                      d="M300.909 240h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="390" cy="250" r="9.091" />
+                    <path
+                      d="M380.909 240h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="490" cy="250" r="9.091" />
+                    <path d="M490 240.909h10v20.909h-10z" />
+                    <path d="M480.909 250h18.182v10h-18.182z" />
+                    <circle cx="510" cy="250" r="9.091" />
+                    <path d="M500 240.909h10v18.182h-10z" />
+                    <path d="M500.909 240H520v10h-19.091z" />
+                    <path d="M510 240.909h10v20.909h-10z" />
+                    <path d="M500 250h19.091v10H500z" />
+                    <circle cx="530" cy="250" r="9.091" />
+                    <path d="M520 240h10v19.091h-10z" />
+                    <path
+                      d="M520.909 240h18.182v10h-18.182zM520 250h19.091v10H520z"
+                    />
+                    <circle cx="570" cy="250" r="9.091" />
+                    <circle cx="610" cy="250" r="9.091" />
+                    <path d="M610 240.909h10v20.909h-10z" />
+                    <path d="M600.909 250h18.182v10h-18.182z" />
+                    <circle cx="630" cy="250" r="9.091" />
+                    <path d="M620 240.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M620 250h19.091v10H620z" />
+                    <circle cx="650" cy="250" r="9.091" />
+                    <path d="M640 240.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M640 250h19.091v10H640z" />
+                    <circle cx="670" cy="250" r="9.091" />
+                    <path d="M660 240.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M660 250h19.091v10H660z" />
+                    <circle cx="690" cy="250" r="9.091" />
+                    <path d="M680 240.909h10v18.182h-10z" />
+                    <path d="M680 250h19.091v10H680z" />
+                    <circle cx="90" cy="270" r="9.091" />
+                    <path d="M80.909 260h18.182v10H80.909z" />
+                    <path d="M90 260.909h10v18.182H90z" />
+                    <circle cx="110" cy="270" r="9.091" />
+                    <path d="M100 260.909h10v18.182h-10z" />
+                    <path d="M100.909 270h18.182v10h-18.182z" />
+                    <circle cx="150" cy="270" r="9.091" />
+                    <path d="M140.909 260h18.182v10h-18.182z" />
+                    <circle cx="190" cy="270" r="9.091" />
+                    <path
+                      d="M180.909 260h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="290" cy="270" r="9.091" />
+                    <path d="M290 260.909h10v18.182h-10z" />
+                    <circle cx="310" cy="270" r="9.091" />
+                    <path d="M300 260.909h10v18.182h-10z" />
+                    <path d="M300.909 260h18.182v10h-18.182z" />
+                    <path d="M310 260.909h10v20.909h-10z" />
+                    <path d="M300.909 270h18.182v10h-18.182z" />
+                    <circle cx="330" cy="270" r="9.091" />
+                    <path d="M320 260.909h10v18.182h-10z" />
+                    <path d="M320 270h19.091v10H320z" />
+                    <circle cx="370" cy="270" r="9.091" />
+                    <path d="M370 260.909h10v18.182h-10z" />
+                    <circle cx="390" cy="270" r="9.091" />
+                    <path d="M380 260.909h10v18.182h-10z" />
+                    <path d="M380.909 260h18.182v10h-18.182z" />
+                    <path d="M390 260.909h10v18.182h-10z" />
+                    <circle cx="410" cy="270" r="9.091" />
+                    <path d="M400 260.909h10v18.182h-10z" />
+                    <circle cx="450" cy="270" r="9.091" />
+                    <path d="M450 260.909h10v20.909h-10z" />
+                    <path d="M440.909 270h18.182v10h-18.182z" />
+                    <circle cx="470" cy="270" r="9.091" />
+                    <path d="M460 260.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M460 270h19.091v10H460z" />
+                    <circle cx="490" cy="270" r="9.091" />
+                    <path d="M480 260.909h10v18.182h-10z" />
+                    <path d="M480.909 260H500v10h-19.091z" />
+                    <path d="M490 260.909h10v18.182h-10z" />
+                    <circle cx="510" cy="270" r="9.091" />
+                    <path d="M500 260h10v19.091h-10z" />
+                    <path d="M500.909 260H520v10h-19.091z" />
+                    <path d="M510 260.909h10v18.182h-10z" />
+                    <circle cx="530" cy="270" r="9.091" />
+                    <path d="M520 260h10v19.091h-10z" />
+                    <path
+                      d="M520.909 260h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="610" cy="270" r="9.091" />
+                    <path d="M600.909 260H620v10h-19.091z" />
+                    <path d="M610 260.909h10v18.182h-10z" />
+                    <circle cx="630" cy="270" r="9.091" />
+                    <path d="M620 260h10v19.091h-10z" />
+                    <path d="M620.909 260H640v10h-19.091z" />
+                    <path d="M630 260.909h10v18.182h-10z" />
+                    <circle cx="650" cy="270" r="9.091" />
+                    <path d="M640 260h10v19.091h-10z" />
+                    <path d="M640.909 260H660v10h-19.091z" />
+                    <path d="M650 260.909h10v18.182h-10z" />
+                    <path d="M640.909 270h18.182v10h-18.182z" />
+                    <circle cx="670" cy="270" r="9.091" />
+                    <path d="M660 260h10v19.091h-10z" />
+                    <path d="M660.909 260H680v10h-19.091z" />
+                    <path d="M670 260.909h10v18.182h-10z" />
+                    <circle cx="690" cy="270" r="9.091" />
+                    <path d="M680 260h10v19.091h-10z" />
+                    <path d="M680.909 260h18.182v10h-18.182z" />
+                    <path d="M690 260.909h10v18.182h-10z" />
+                    <circle cx="710" cy="270" r="9.091" />
+                    <path d="M700 260.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M700.909 270h18.182v10h-18.182z" />
+                    <circle cx="730" cy="270" r="9.091" />
+                    <path d="M720 260.909h10v18.182h-10z" />
+                    <path d="M720 270h19.091v10H720z" />
+                    <circle cx="110" cy="290" r="9.091" />
+                    <path d="M100.909 280h18.182v10h-18.182z" />
+                    <path d="M110 280.909h10v20.909h-10z" />
+                    <path d="M100.909 290h18.182v10h-18.182z" />
+                    <circle cx="130" cy="290" r="9.091" />
+                    <path d="M120 280.909h10v18.182h-10z" />
+                    <path d="M120 290h19.091v10H120z" />
+                    <circle cx="190" cy="290" r="9.091" />
+                    <path d="M180.909 280h18.182v10h-18.182z" />
+                    <path d="M190 280.909h10v18.182h-10z" />
+                    <circle cx="210" cy="290" r="9.091" />
+                    <path d="M200 280.909h10v18.182h-10z" />
+                    <circle cx="270" cy="290" r="9.091" />
+                    <path d="M260.909 290h18.182v10h-18.182z" />
+                    <circle cx="310" cy="290" r="9.091" />
+                    <path d="M300.909 280H320v10h-19.091z" />
+                    <path d="M310 280.909h10v18.182h-10z" />
+                    <circle cx="330" cy="290" r="9.091" />
+                    <path d="M320 280h10v19.091h-10z" />
+                    <path
+                      d="M320.909 280h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="450" cy="290" r="9.091" />
+                    <path d="M440.909 280H460v10h-19.091z" />
+                    <path d="M450 280.909h10v18.182h-10z" />
+                    <circle cx="470" cy="290" r="9.091" />
+                    <path d="M460 280h10v19.091h-10z" />
+                    <path
+                      d="M460.909 280h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="530" cy="290" r="9.091" />
+                    <path d="M520.909 280h18.182v10h-18.182z" />
+                    <circle cx="650" cy="290" r="9.091" />
+                    <path d="M640.909 280h18.182v10h-18.182z" />
+                    <circle cx="710" cy="290" r="9.091" />
+                    <path d="M700.909 280H720v10h-19.091z" />
+                    <path d="M710 280.909h10v18.182h-10z" />
+                    <circle cx="730" cy="290" r="9.091" />
+                    <path d="M720 280h10v19.091h-10z" />
+                    <path
+                      d="M720.909 280h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="110" cy="310" r="9.091" />
+                    <path d="M100.909 300H120v10h-19.091z" />
+                    <path d="M110 300.909h10v20.909h-10z" />
+                    <path d="M100.909 310h18.182v10h-18.182z" />
+                    <circle cx="130" cy="310" r="9.091" />
+                    <path d="M120 300h10v19.091h-10z" />
+                    <path
+                      d="M120.909 300h18.182v10h-18.182zM120 310h19.091v10H120z"
+                    />
+                    <circle cx="170" cy="310" r="9.091" />
+                    <circle cx="230" cy="310" r="9.091" />
+                    <path d="M220.909 310h18.182v10h-18.182z" />
+                    <circle cx="270" cy="310" r="9.091" />
+                    <path
+                      d="M260.909 300h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="330" cy="310" r="9.091" />
+                    <path d="M320.909 300h18.182v10h-18.182z" />
+                    <circle cx="370" cy="310" r="9.091" />
+                    <circle cx="410" cy="310" r="9.091" />
+                    <circle cx="470" cy="310" r="9.091" />
+                    <path d="M460.909 300h18.182v10h-18.182z" />
+                    <circle cx="550" cy="310" r="9.091" />
+                    <circle cx="590" cy="310" r="9.091" />
+                    <path d="M590 300.909h10v18.182h-10z" />
+                    <circle cx="610" cy="310" r="9.091" />
+                    <path d="M600 300.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="630" cy="310" r="9.091" />
+                    <path d="M620 300.909h10v18.182h-10z" />
+                    <path d="M620.909 310h18.182v10h-18.182z" />
+                    <circle cx="730" cy="310" r="9.091" />
+                    <path d="M720.909 300h18.182v10h-18.182z" />
+                    <circle cx="90" cy="330" r="9.091" />
+                    <path d="M90 320.909h10v18.182H90z" />
+                    <circle cx="110" cy="330" r="9.091" />
+                    <path d="M100 320.909h10v18.182h-10z" />
+                    <path d="M100.909 320H120v10h-19.091z" />
+                    <path d="M110 320.909h10v20.909h-10z" />
+                    <path d="M100.909 330h18.182v10h-18.182z" />
+                    <circle cx="130" cy="330" r="9.091" />
+                    <path d="M120 320h10v19.091h-10z" />
+                    <path
+                      d="M120.909 320h18.182v10h-18.182zM120 330h19.091v10H120z"
+                    />
+                    <circle cx="190" cy="330" r="9.091" />
+                    <path d="M190 320.909h10v18.182h-10z" />
+                    <path d="M180.909 330h18.182v10h-18.182z" />
+                    <circle cx="210" cy="330" r="9.091" />
+                    <path d="M200 320.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="230" cy="330" r="9.091" />
+                    <path d="M220 320.909h10v18.182h-10z" />
+                    <path
+                      d="M220.909 320h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="270" cy="330" r="9.091" />
+                    <path d="M260.909 320h18.182v10h-18.182z" />
+                    <path d="M270 320.909h10v18.182h-10z" />
+                    <circle cx="290" cy="330" r="9.091" />
+                    <path d="M280 320.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="310" cy="330" r="9.091" />
+                    <path d="M300 320.909h10v18.182h-10z" />
+                    <circle cx="390" cy="330" r="9.091" />
+                    <path d="M380.909 330h18.182v10h-18.182z" />
+                    <circle cx="450" cy="330" r="9.091" />
+                    <circle cx="530" cy="330" r="9.091" />
+                    <path d="M520.909 330h18.182v10h-18.182z" />
+                    <circle cx="570" cy="330" r="9.091" />
+                    <circle cx="630" cy="330" r="9.091" />
+                    <path
+                      d="M620.909 320h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="690" cy="330" r="9.091" />
+                    <path d="M680.909 330h18.182v10h-18.182z" />
+                    <circle cx="110" cy="350" r="9.091" />
+                    <path d="M100.909 340H120v10h-19.091z" />
+                    <path d="M110 340.909h10v20.909h-10z" />
+                    <path d="M100.909 350h18.182v10h-18.182z" />
+                    <circle cx="130" cy="350" r="9.091" />
+                    <path d="M120 340h10v19.091h-10z" />
+                    <path d="M120.909 340h18.182v10h-18.182z" />
+                    <path d="M130 340.909h10v18.182h-10z" />
+                    <path d="M120 350h19.091v10H120z" />
+                    <circle cx="150" cy="350" r="9.091" />
+                    <path d="M140 340.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="170" cy="350" r="9.091" />
+                    <path d="M160 340.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M160.909 350h18.182v10h-18.182z" />
+                    <circle cx="190" cy="350" r="9.091" />
+                    <path d="M180 340.909h10v18.182h-10z" />
+                    <path d="M180.909 340h18.182v10h-18.182z" />
+                    <circle cx="230" cy="350" r="9.091" />
+                    <path d="M220.909 340h18.182v10h-18.182z" />
+                    <circle cx="330" cy="350" r="9.091" />
+                    <circle cx="370" cy="350" r="9.091" />
+                    <path d="M370 340.909h10v18.182h-10z" />
+                    <circle cx="390" cy="350" r="9.091" />
+                    <path d="M380 340.909h10v18.182h-10z" />
+                    <path d="M380.909 340h18.182v10h-18.182z" />
+                    <path d="M390 340.909h10v18.182h-10z" />
+                    <circle cx="410" cy="350" r="9.091" />
+                    <path d="M400 340.909h10v18.182h-10z" />
+                    <circle cx="490" cy="350" r="9.091" />
+                    <path d="M490 340.909h10v18.182h-10z" />
+                    <path d="M480.909 350h18.182v10h-18.182z" />
+                    <circle cx="510" cy="350" r="9.091" />
+                    <path d="M500 340.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="530" cy="350" r="9.091" />
+                    <path d="M520 340.909h10v18.182h-10z" />
+                    <path d="M520.909 340h18.182v10h-18.182z" />
+                    <path d="M530 340.909h10v18.182h-10z" />
+                    <path d="M520.909 350h18.182v10h-18.182z" />
+                    <circle cx="550" cy="350" r="9.091" />
+                    <path d="M540 340.909h10v18.182h-10z" />
+                    <circle cx="590" cy="350" r="9.091" />
+                    <circle cx="630" cy="350" r="9.091" />
+                    <path d="M620.909 340h18.182v10h-18.182z" />
+                    <circle cx="690" cy="350" r="9.091" />
+                    <path d="M680.909 340h18.182v10h-18.182z" />
+                    <circle cx="730" cy="350" r="9.091" />
+                    <circle cx="90" cy="370" r="9.091" />
+                    <path d="M90 360.909h10v18.182H90z" />
+                    <circle cx="110" cy="370" r="9.091" />
+                    <path d="M100 360.909h10v18.182h-10z" />
+                    <path d="M100.909 360H120v10h-19.091z" />
+                    <path d="M110 360.909h10v18.182h-10z" />
+                    <circle cx="130" cy="370" r="9.091" />
+                    <path d="M120 360h10v19.091h-10z" />
+                    <path
+                      d="M120.909 360h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="170" cy="370" r="9.091" />
+                    <path
+                      d="M160.909 360h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="210" cy="370" r="9.091" />
+                    <circle cx="310" cy="370" r="9.091" />
+                    <circle cx="350" cy="370" r="9.091" />
+                    <path d="M340.909 370h18.182v10h-18.182z" />
+                    <circle cx="430" cy="370" r="9.091" />
+                    <circle cx="490" cy="370" r="9.091" />
+                    <path
+                      d="M480.909 360h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="530" cy="370" r="9.091" />
+                    <path d="M520.909 360h18.182v10h-18.182z" />
+                    <circle cx="650" cy="370" r="9.091" />
+                    <path d="M650 360.909h10v18.182h-10z" />
+                    <circle cx="670" cy="370" r="9.091" />
+                    <path d="M660 360.909h10v18.182h-10z" />
+                    <circle cx="130" cy="390" r="9.091" />
+                    <path d="M120.909 380h18.182v10h-18.182z" />
+                    <circle cx="170" cy="390" r="9.091" />
+                    <path d="M160.909 380h18.182v10h-18.182z" />
+                    <path d="M170 380.909h10v18.182h-10z" />
+                    <path d="M160.909 390h18.182v10h-18.182z" />
+                    <circle cx="190" cy="390" r="9.091" />
+                    <path d="M180 380.909h10v18.182h-10z" />
+                    <circle cx="270" cy="390" r="9.091" />
+                    <path d="M270 380.909h10v18.182h-10z" />
+                    <path d="M260.909 390h18.182v10h-18.182z" />
+                    <circle cx="290" cy="390" r="9.091" />
+                    <path d="M280 380.909h10v18.182h-10z" />
+                    <circle cx="350" cy="390" r="9.091" />
+                    <path d="M340.909 380h18.182v10h-18.182z" />
+                    <path d="M350 380.909h10v18.182h-10z" />
+                    <circle cx="370" cy="390" r="9.091" />
+                    <path d="M360 380.909h10v18.182h-10z" />
+                    <path d="M360.909 390h18.182v10h-18.182z" />
+                    <circle cx="410" cy="390" r="9.091" />
+                    <path d="M400.909 390h18.182v10h-18.182z" />
+                    <circle cx="450" cy="390" r="9.091" />
+                    <path d="M450 380.909h10v18.182h-10z" />
+                    <path d="M440.909 390h18.182v10h-18.182z" />
+                    <circle cx="470" cy="390" r="9.091" />
+                    <path d="M460 380.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="490" cy="390" r="9.091" />
+                    <path d="M480 380.909h10v18.182h-10z" />
+                    <path d="M480.909 380h18.182v10h-18.182z" />
+                    <path d="M490 380.909h10v18.182h-10z" />
+                    <path d="M480.909 390h18.182v10h-18.182z" />
+                    <circle cx="510" cy="390" r="9.091" />
+                    <path d="M500 380.909h10v18.182h-10z" />
+                    <circle cx="550" cy="390" r="9.091" />
+                    <circle cx="610" cy="390" r="9.091" />
+                    <path d="M610 380.909h10v18.182h-10z" />
+                    <path d="M600.909 390h18.182v10h-18.182z" />
+                    <circle cx="630" cy="390" r="9.091" />
+                    <path d="M620 380.909h10v18.182h-10z" />
+                    <circle cx="690" cy="390" r="9.091" />
+                    <path d="M690 380.909h10v18.182h-10z" />
+                    <circle cx="710" cy="390" r="9.091" />
+                    <path d="M700 380.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="730" cy="390" r="9.091" />
+                    <path d="M720 380.909h10v18.182h-10z" />
+                    <circle cx="110" cy="410" r="9.091" />
+                    <circle cx="170" cy="410" r="9.091" />
+                    <path
+                      d="M160.909 400h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="210" cy="410" r="9.091" />
+                    <path d="M210 400.909h10v18.182h-10z" />
+                    <circle cx="230" cy="410" r="9.091" />
+                    <path d="M220 400.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M220.909 410h18.182v10h-18.182z" />
+                    <circle cx="250" cy="410" r="9.091" />
+                    <path d="M240 400.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="270" cy="410" r="9.091" />
+                    <path d="M260 400.909h10v18.182h-10z" />
+                    <path
+                      d="M260.909 400h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="330" cy="410" r="9.091" />
+                    <path d="M320.909 410h18.182v10h-18.182z" />
+                    <circle cx="370" cy="410" r="9.091" />
+                    <path d="M360.909 400h18.182v10h-18.182z" />
+                    <circle cx="410" cy="410" r="9.091" />
+                    <path d="M400.909 400h18.182v10h-18.182z" />
+                    <path d="M410 400.909h10v18.182h-10z" />
+                    <circle cx="430" cy="410" r="9.091" />
+                    <path d="M420 400.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M420.909 410h18.182v10h-18.182z" />
+                    <circle cx="450" cy="410" r="9.091" />
+                    <path d="M440 400.909h10v18.182h-10z" />
+                    <path
+                      d="M440.909 400h18.182v10h-18.182zM440 410h19.091v10H440z"
+                    />
+                    <circle cx="490" cy="410" r="9.091" />
+                    <path
+                      d="M480.909 400h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="590" cy="410" r="9.091" />
+                    <path d="M590 400.909h10v20.909h-10z" />
+                    <path d="M580.909 410h18.182v10h-18.182z" />
+                    <circle cx="610" cy="410" r="9.091" />
+                    <path d="M600 400.909h10v18.182h-10z" />
+                    <path
+                      d="M600.909 400h18.182v10h-18.182zM600 410h19.091v10H600z"
+                    />
+                    <circle cx="650" cy="410" r="9.091" />
+                    <circle cx="170" cy="430" r="9.091" />
+                    <path d="M160.909 420h18.182v10h-18.182z" />
+                    <circle cx="230" cy="430" r="9.091" />
+                    <path
+                      d="M220.909 420h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="270" cy="430" r="9.091" />
+                    <path d="M260.909 420h18.182v10h-18.182z" />
+                    <circle cx="330" cy="430" r="9.091" />
+                    <path d="M320.909 420h18.182v10h-18.182z" />
+                    <path d="M330 420.909h10v18.182h-10z" />
+                    <circle cx="350" cy="430" r="9.091" />
+                    <path d="M340 420.909h10v18.182h-10z" />
+                    <path d="M340.909 430h18.182v10h-18.182z" />
+                    <circle cx="390" cy="430" r="9.091" />
+                    <path d="M380.909 430h18.182v10h-18.182z" />
+                    <circle cx="430" cy="430" r="9.091" />
+                    <path d="M420.909 420H440v10h-19.091z" />
+                    <path d="M430 420.909h10v18.182h-10z" />
+                    <path d="M420.909 430h18.182v10h-18.182z" />
+                    <circle cx="450" cy="430" r="9.091" />
+                    <path d="M440 420h10v19.091h-10z" />
+                    <path d="M440.909 420h18.182v10h-18.182z" />
+                    <circle cx="490" cy="430" r="9.091" />
+                    <path d="M480.909 420h18.182v10h-18.182z" />
+                    <path d="M490 420.909h10v18.182h-10z" />
+                    <circle cx="510" cy="430" r="9.091" />
+                    <path d="M500 420.909h10v18.182h-10z" />
+                    <circle cx="570" cy="430" r="9.091" />
+                    <path d="M570 420.909h10v18.182h-10z" />
+                    <path d="M560.909 430h18.182v10h-18.182z" />
+                    <circle cx="590" cy="430" r="9.091" />
+                    <path d="M580 420.909h10v18.182h-10z" />
+                    <path d="M580.909 420H600v10h-19.091z" />
+                    <path d="M590 420.909h10v18.182h-10z" />
+                    <circle cx="610" cy="430" r="9.091" />
+                    <path d="M600 420h10v19.091h-10z" />
+                    <path d="M600.909 420h18.182v10h-18.182z" />
+                    <path d="M610 420.909h10v18.182h-10z" />
+                    <circle cx="630" cy="430" r="9.091" />
+                    <path d="M620 420.909h10v18.182h-10z" />
+                    <circle cx="670" cy="430" r="9.091" />
+                    <path d="M670 420.909h10v18.182h-10z" />
+                    <path d="M660.909 430h18.182v10h-18.182z" />
+                    <circle cx="690" cy="430" r="9.091" />
+                    <path d="M680 420.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="710" cy="430" r="9.091" />
+                    <path d="M700 420.909h10v18.182h-10z" />
+                    <circle cx="130" cy="450" r="9.091" />
+                    <path d="M130 440.909h10v18.182h-10z" />
+                    <circle cx="150" cy="450" r="9.091" />
+                    <path d="M140 440.909h10v18.182h-10z" />
+                    <circle cx="210" cy="450" r="9.091" />
+                    <path d="M210 440.909h10v18.182h-10z" />
+                    <circle cx="230" cy="450" r="9.091" />
+                    <path d="M220 440.909h10v18.182h-10z" />
+                    <path d="M220.909 440h18.182v10h-18.182z" />
+                    <path d="M230 440.909h10v18.182h-10z" />
+                    <path d="M220.909 450h18.182v10h-18.182z" />
+                    <circle cx="250" cy="450" r="9.091" />
+                    <path d="M240 440.909h10v18.182h-10z" />
+                    <circle cx="290" cy="450" r="9.091" />
+                    <path d="M290 440.909h10v18.182h-10z" />
+                    <circle cx="310" cy="450" r="9.091" />
+                    <path d="M300 440.909h10v18.182h-10z" />
+                    <circle cx="350" cy="450" r="9.091" />
+                    <path d="M340.909 440h18.182v10h-18.182z" />
+                    <circle cx="390" cy="450" r="9.091" />
+                    <path d="M380.909 440h18.182v10h-18.182z" />
+                    <circle cx="430" cy="450" r="9.091" />
+                    <path
+                      d="M420.909 440h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="470" cy="450" r="9.091" />
+                    <path d="M460.909 450h18.182v10h-18.182z" />
+                    <circle cx="530" cy="450" r="9.091" />
+                    <path d="M530 440.909h10v18.182h-10z" />
+                    <circle cx="550" cy="450" r="9.091" />
+                    <path d="M540 440.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M540.909 450h18.182v10h-18.182z" />
+                    <circle cx="570" cy="450" r="9.091" />
+                    <path d="M560 440.909h10v18.182h-10z" />
+                    <path d="M560.909 440h18.182v10h-18.182z" />
+                    <circle cx="650" cy="450" r="9.091" />
+                    <path d="M650 440.909h10v18.182h-10z" />
+                    <circle cx="670" cy="450" r="9.091" />
+                    <path d="M660 440.909h10v18.182h-10z" />
+                    <path
+                      d="M660.909 440h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="90" cy="470" r="9.091" />
+                    <path d="M80.909 470h18.182v10H80.909z" />
+                    <circle cx="190" cy="470" r="9.091" />
+                    <path d="M180.909 470h18.182v10h-18.182z" />
+                    <circle cx="230" cy="470" r="9.091" />
+                    <path d="M220.909 460h18.182v10h-18.182z" />
+                    <circle cx="410" cy="470" r="9.091" />
+                    <path d="M410 460.909h10v18.182h-10z" />
+                    <path d="M400.909 470h18.182v10h-18.182z" />
+                    <circle cx="430" cy="470" r="9.091" />
+                    <path d="M420 460.909h10v18.182h-10z" />
+                    <path d="M420.909 460h18.182v10h-18.182z" />
+                    <path d="M430 460.909h10v18.182h-10z" />
+                    <circle cx="450" cy="470" r="9.091" />
+                    <path d="M440 460.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="470" cy="470" r="9.091" />
+                    <path d="M460 460.909h10v18.182h-10z" />
+                    <path d="M460.909 460h18.182v10h-18.182z" />
+                    <path d="M470 460.909h10v18.182h-10z" />
+                    <circle cx="490" cy="470" r="9.091" />
+                    <path d="M480 460.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="510" cy="470" r="9.091" />
+                    <path d="M500 460.909h10v18.182h-10z" />
+                    <path d="M500.909 470h18.182v10h-18.182z" />
+                    <circle cx="550" cy="470" r="9.091" />
+                    <path d="M540.909 460h18.182v10h-18.182z" />
+                    <circle cx="590" cy="470" r="9.091" />
+                    <path d="M590 460.909h10v18.182h-10z" />
+                    <circle cx="610" cy="470" r="9.091" />
+                    <path d="M600 460.909h10v18.182h-10z" />
+                    <circle cx="670" cy="470" r="9.091" />
+                    <path d="M660.909 460h18.182v10h-18.182z" />
+                    <path d="M670 460.909h10v18.182h-10z" />
+                    <circle cx="690" cy="470" r="9.091" />
+                    <path d="M680 460.909h10v18.182h-10z" />
+                    <path d="M680.909 470h18.182v10h-18.182z" />
+                    <circle cx="730" cy="470" r="9.091" />
+                    <circle cx="90" cy="490" r="9.091" />
+                    <path
+                      d="M80.909 480h18.182v10H80.909zm0 10h18.182v10H80.909z"
+                    />
+                    <circle cx="130" cy="490" r="9.091" />
+                    <circle cx="190" cy="490" r="9.091" />
+                    <path d="M180.909 480h18.182v10h-18.182z" />
+                    <path d="M190 480.909h10v18.182h-10z" />
+                    <circle cx="210" cy="490" r="9.091" />
+                    <path d="M200 480.909h10v18.182h-10z" />
+                    <circle cx="290" cy="490" r="9.091" />
+                    <path d="M280.909 490h18.182v10h-18.182z" />
+                    <circle cx="370" cy="490" r="9.091" />
+                    <path d="M370 480.909h10v20.909h-10z" />
+                    <path d="M360.909 490h18.182v10h-18.182z" />
+                    <circle cx="390" cy="490" r="9.091" />
+                    <path d="M380 480.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M380 490h19.091v10H380z" />
+                    <circle cx="410" cy="490" r="9.091" />
+                    <path d="M400 480.909h10v18.182h-10z" />
+                    <path d="M400.909 480h18.182v10h-18.182z" />
+                    <circle cx="510" cy="490" r="9.091" />
+                    <path d="M500.909 480h18.182v10h-18.182z" />
+                    <path d="M510 480.909h10v18.182h-10z" />
+                    <path d="M500.909 490h18.182v10h-18.182z" />
+                    <circle cx="530" cy="490" r="9.091" />
+                    <path d="M520 480.909h10v18.182h-10z" />
+                    <circle cx="630" cy="490" r="9.091" />
+                    <path d="M630 480.909h10v18.182h-10z" />
+                    <circle cx="650" cy="490" r="9.091" />
+                    <path d="M640 480.909h10v18.182h-10z" />
+                    <circle cx="690" cy="490" r="9.091" />
+                    <path d="M680.909 480h18.182v10h-18.182z" />
+                    <path d="M690 480.909h10v18.182h-10z" />
+                    <path d="M680.909 490h18.182v10h-18.182z" />
+                    <circle cx="710" cy="490" r="9.091" />
+                    <path d="M700 480.909h10v18.182h-10z" />
+                    <circle cx="90" cy="510" r="9.091" />
+                    <path d="M80.909 500h18.182v10H80.909z" />
+                    <path d="M90 500.909h10v18.182H90z" />
+                    <path d="M80.909 510h18.182v10H80.909z" />
+                    <circle cx="110" cy="510" r="9.091" />
+                    <path d="M100 500.909h10v18.182h-10z" />
+                    <circle cx="150" cy="510" r="9.091" />
+                    <circle cx="230" cy="510" r="9.091" />
+                    <path d="M230 500.909h10v18.182h-10z" />
+                    <circle cx="250" cy="510" r="9.091" />
+                    <path d="M240 500.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M240.909 510h18.182v10h-18.182z" />
+                    <circle cx="270" cy="510" r="9.091" />
+                    <path d="M260 500.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M260 510h19.091v10H260z" />
+                    <circle cx="290" cy="510" r="9.091" />
+                    <path d="M280 500.909h10v18.182h-10z" />
+                    <path d="M280.909 500h18.182v10h-18.182z" />
+                    <path d="M290 500.909h10v20.909h-10z" />
+                    <path d="M280 510h19.091v10H280z" />
+                    <circle cx="310" cy="510" r="9.091" />
+                    <path d="M300 500.909h10v18.182h-10z" />
+                    <path d="M300 510h19.091v10H300z" />
+                    <circle cx="350" cy="510" r="9.091" />
+                    <path d="M350 500.909h10v18.182h-10z" />
+                    <circle cx="370" cy="510" r="9.091" />
+                    <path d="M360 500.909h10v18.182h-10z" />
+                    <path d="M360.909 500H380v10h-19.091z" />
+                    <path d="M370 500.909h10v18.182h-10z" />
+                    <circle cx="390" cy="510" r="9.091" />
+                    <path d="M380 500h10v19.091h-10z" />
+                    <path
+                      d="M380.909 500h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="450" cy="510" r="9.091" />
+                    <circle cx="510" cy="510" r="9.091" />
+                    <path d="M500.909 500h18.182v10h-18.182z" />
+                    <circle cx="610" cy="510" r="9.091" />
+                    <circle cx="690" cy="510" r="9.091" />
+                    <path d="M680.909 500h18.182v10h-18.182z" />
+                    <circle cx="90" cy="530" r="9.091" />
+                    <path
+                      d="M80.909 520h18.182v10H80.909zm0 10h18.182v10H80.909z"
+                    />
+                    <circle cx="130" cy="530" r="9.091" />
+                    <circle cx="190" cy="530" r="9.091" />
+                    <path d="M190 520.909h10v18.182h-10z" />
+                    <path d="M180.909 530h18.182v10h-18.182z" />
+                    <circle cx="210" cy="530" r="9.091" />
+                    <path d="M200 520.909h10v18.182h-10z" />
+                    <circle cx="250" cy="530" r="9.091" />
+                    <path d="M240.909 520H260v10h-19.091z" />
+                    <path d="M250 520.909h10v18.182h-10z" />
+                    <circle cx="270" cy="530" r="9.091" />
+                    <path d="M260 520h10v19.091h-10z" />
+                    <path d="M260.909 520H280v10h-19.091z" />
+                    <path d="M270 520.909h10v18.182h-10z" />
+                    <circle cx="290" cy="530" r="9.091" />
+                    <path d="M280 520h10v19.091h-10z" />
+                    <path d="M280.909 520H300v10h-19.091z" />
+                    <path d="M290 520.909h10v18.182h-10z" />
+                    <circle cx="310" cy="530" r="9.091" />
+                    <path d="M300 520h10v19.091h-10z" />
+                    <path d="M300.909 520h18.182v10h-18.182z" />
+                    <path d="M310 520.909h10v18.182h-10z" />
+                    <path d="M300.909 530h18.182v10h-18.182z" />
+                    <circle cx="330" cy="530" r="9.091" />
+                    <path d="M320 520.909h10v18.182h-10z" />
+                    <circle cx="390" cy="530" r="9.091" />
+                    <path d="M380.909 520h18.182v10h-18.182z" />
+                    <path d="M390 520.909h10v18.182h-10z" />
+                    <path d="M380.909 530h18.182v10h-18.182z" />
+                    <circle cx="410" cy="530" r="9.091" />
+                    <path d="M400 520.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="430" cy="530" r="9.091" />
+                    <path d="M420 520.909h10v18.182h-10z" />
+                    <circle cx="470" cy="530" r="9.091" />
+                    <path d="M470 520.909h10v20.909h-10z" />
+                    <path d="M460.909 530h18.182v10h-18.182z" />
+                    <circle cx="490" cy="530" r="9.091" />
+                    <path d="M480 520.909h10v18.182h-10z" />
+                    <path d="M480 530h19.091v10H480z" />
+                    <circle cx="550" cy="530" r="9.091" />
+                    <path d="M550 520.909h10v20.909h-10z" />
+                    <path d="M540.909 530h18.182v10h-18.182z" />
+                    <circle cx="570" cy="530" r="9.091" />
+                    <path d="M560 520.909h10v18.182h-10z" />
+                    <path d="M560 530h19.091v10H560z" />
+                    <circle cx="650" cy="530" r="9.091" />
+                    <path d="M650 520.909h10v18.182h-10z" />
+                    <circle cx="670" cy="530" r="9.091" />
+                    <path d="M660 520.909h10v18.182h-10z" />
+                    <circle cx="710" cy="530" r="9.091" />
+                    <circle cx="90" cy="550" r="9.091" />
+                    <path
+                      d="M80.909 540h18.182v10H80.909zm0 10h18.182v10H80.909z"
+                    />
+                    <circle cx="150" cy="550" r="9.091" />
+                    <path d="M140.909 550h18.182v10h-18.182z" />
+                    <circle cx="190" cy="550" r="9.091" />
+                    <path d="M180.909 540h18.182v10h-18.182z" />
+                    <circle cx="310" cy="550" r="9.091" />
+                    <path
+                      d="M300.909 540h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="350" cy="550" r="9.091" />
+                    <path d="M340.909 550h18.182v10h-18.182z" />
+                    <circle cx="390" cy="550" r="9.091" />
+                    <path
+                      d="M380.909 540h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="450" cy="550" r="9.091" />
+                    <path d="M450 540.909h10v18.182h-10z" />
+                    <circle cx="470" cy="550" r="9.091" />
+                    <path d="M460 540.909h10v18.182h-10z" />
+                    <path d="M460.909 540H480v10h-19.091z" />
+                    <path d="M470 540.909h10v18.182h-10z" />
+                    <circle cx="490" cy="550" r="9.091" />
+                    <path d="M480 540h10v19.091h-10z" />
+                    <path
+                      d="M480.909 540h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="550" cy="550" r="9.091" />
+                    <path d="M540.909 540H560v10h-19.091z" />
+                    <path d="M550 540.909h10v18.182h-10z" />
+                    <circle cx="570" cy="550" r="9.091" />
+                    <path d="M560 540h10v19.091h-10z" />
+                    <path
+                      d="M560.909 540h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="610" cy="550" r="9.091" />
+                    <path d="M610 540.909h10v20.909h-10z" />
+                    <path d="M600.909 550h18.182v10h-18.182z" />
+                    <circle cx="630" cy="550" r="9.091" />
+                    <path d="M620 540.909h10v18.182h-10z" />
+                    <path d="M620 550h19.091v10H620z" />
+                    <circle cx="690" cy="550" r="9.091" />
+                    <path d="M680.909 550h18.182v10h-18.182z" />
+                    <circle cx="730" cy="550" r="9.091" />
+                    <path d="M720.909 550h18.182v10h-18.182z" />
+                    <circle cx="90" cy="570" r="9.091" />
+                    <path d="M80.909 560h18.182v10H80.909z" />
+                    <circle cx="130" cy="570" r="9.091" />
+                    <path d="M130 560.909h10v18.182h-10z" />
+                    <circle cx="150" cy="570" r="9.091" />
+                    <path d="M140 560.909h10v18.182h-10z" />
+                    <path d="M140.909 560h18.182v10h-18.182z" />
+                    <path d="M150 560.909h10v18.182h-10z" />
+                    <circle cx="170" cy="570" r="9.091" />
+                    <path d="M160 560.909h10v18.182h-10z" />
+                    <circle cx="210" cy="570" r="9.091" />
+                    <path d="M210 560.909h10v18.182h-10z" />
+                    <circle cx="230" cy="570" r="9.091" />
+                    <path d="M220 560.909h10v18.182h-10z" />
+                    <circle cx="290" cy="570" r="9.091" />
+                    <path d="M290 560.909h10v18.182h-10z" />
+                    <circle cx="310" cy="570" r="9.091" />
+                    <path d="M300 560.909h10v18.182h-10z" />
+                    <path d="M300.909 560h18.182v10h-18.182z" />
+                    <circle cx="350" cy="570" r="9.091" />
+                    <path d="M340.909 560h18.182v10h-18.182z" />
+                    <path d="M350 560.909h10v20.909h-10z" />
+                    <path d="M340.909 570h18.182v10h-18.182z" />
+                    <circle cx="370" cy="570" r="9.091" />
+                    <path d="M360 560.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M360 570h19.091v10H360z" />
+                    <circle cx="390" cy="570" r="9.091" />
+                    <path d="M380 560.909h10v18.182h-10z" />
+                    <path
+                      d="M380.909 560h18.182v10h-18.182zM380 570h19.091v10H380z"
+                    />
+                    <circle cx="490" cy="570" r="9.091" />
+                    <path
+                      d="M480.909 560h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="530" cy="570" r="9.091" />
+                    <circle cx="570" cy="570" r="9.091" />
+                    <path d="M560.909 560h18.182v10h-18.182z" />
+                    <path d="M570 560.909h10v18.182h-10z" />
+                    <path d="M560.909 570h18.182v10h-18.182z" />
+                    <circle cx="590" cy="570" r="9.091" />
+                    <path d="M580 560.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="610" cy="570" r="9.091" />
+                    <path d="M600 560.909h10v18.182h-10z" />
+                    <path d="M600.909 560H620v10h-19.091z" />
+                    <path d="M610 560.909h10v18.182h-10z" />
+                    <circle cx="630" cy="570" r="9.091" />
+                    <path d="M620 560h10v19.091h-10z" />
+                    <path d="M620.909 560h18.182v10h-18.182z" />
+                    <path d="M630 560.909h10v18.182h-10z" />
+                    <circle cx="650" cy="570" r="9.091" />
+                    <path d="M640 560.909h10v18.182h-10z" />
+                    <path d="M640.909 570h18.182v10h-18.182z" />
+                    <circle cx="690" cy="570" r="9.091" />
+                    <path
+                      d="M680.909 560h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="730" cy="570" r="9.091" />
+                    <path
+                      d="M720.909 560h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="250" cy="590" r="9.091" />
+                    <circle cx="350" cy="590" r="9.091" />
+                    <path d="M340.909 580H360v10h-19.091z" />
+                    <path d="M350 580.909h10v18.182h-10z" />
+                    <circle cx="370" cy="590" r="9.091" />
+                    <path d="M360 580h10v19.091h-10z" />
+                    <path d="M360.909 580H380v10h-19.091z" />
+                    <path d="M370 580.909h10v18.182h-10z" />
+                    <circle cx="390" cy="590" r="9.091" />
+                    <path d="M380 580h10v19.091h-10z" />
+                    <path d="M380.909 580h18.182v10h-18.182z" />
+                    <path d="M390 580.909h10v20.909h-10z" />
+                    <path d="M380.909 590h18.182v10h-18.182z" />
+                    <circle cx="410" cy="590" r="9.091" />
+                    <path d="M400 580.909h10v18.182h-10z" />
+                    <path d="M400 590h19.091v10H400z" />
+                    <circle cx="470" cy="590" r="9.091" />
+                    <path d="M470 580.909h10v18.182h-10z" />
+                    <path d="M460.909 590h18.182v10h-18.182z" />
+                    <circle cx="490" cy="590" r="9.091" />
+                    <path d="M480 580.909h10v18.182h-10z" />
+                    <path d="M480.909 580h18.182v10h-18.182z" />
+                    <path d="M490 580.909h10v18.182h-10z" />
+                    <circle cx="510" cy="590" r="9.091" />
+                    <path d="M500 580.909h10v18.182h-10z" />
+                    <circle cx="550" cy="590" r="9.091" />
+                    <path d="M550 580.909h10v20.909h-10z" />
+                    <path d="M540.909 590h18.182v10h-18.182z" />
+                    <circle cx="570" cy="590" r="9.091" />
+                    <path d="M560 580.909h10v18.182h-10z" />
+                    <path
+                      d="M560.909 580h18.182v10h-18.182zM560 590h19.091v10H560z"
+                    />
+                    <circle cx="650" cy="590" r="9.091" />
+                    <path d="M640.909 580h18.182v10h-18.182z" />
+                    <path d="M650 580.909h10v20.909h-10z" />
+                    <path d="M640.909 590h18.182v10h-18.182z" />
+                    <circle cx="670" cy="590" r="9.091" />
+                    <path d="M660 580.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M660 590h19.091v10H660z" />
+                    <circle cx="690" cy="590" r="9.091" />
+                    <path d="M680 580.909h10v18.182h-10z" />
+                    <path d="M680.909 580h18.182v10h-18.182z" />
+                    <path d="M690 580.909h10v18.182h-10z" />
+                    <circle cx="710" cy="590" r="9.091" />
+                    <path d="M700 580.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="730" cy="590" r="9.091" />
+                    <path d="M720 580.909h10v18.182h-10z" />
+                    <path d="M720.909 580h18.182v10h-18.182z" />
+                    <circle cx="310" cy="610" r="9.091" />
+                    <path d="M300.909 610h18.182v10h-18.182z" />
+                    <circle cx="390" cy="610" r="9.091" />
+                    <path d="M380.909 600H400v10h-19.091z" />
+                    <path d="M390 600.909h10v18.182h-10z" />
+                    <circle cx="410" cy="610" r="9.091" />
+                    <path d="M400 600h10v19.091h-10z" />
+                    <path
+                      d="M400.909 600h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="450" cy="610" r="9.091" />
+                    <path d="M450 600.909h10v18.182h-10z" />
+                    <circle cx="470" cy="610" r="9.091" />
+                    <path d="M460 600.909h10v18.182h-10z" />
+                    <path
+                      d="M460.909 600h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="530" cy="610" r="9.091" />
+                    <path d="M530 600.909h10v18.182h-10z" />
+                    <circle cx="550" cy="610" r="9.091" />
+                    <path d="M540 600.909h10v18.182h-10z" />
+                    <path d="M540.909 600H560v10h-19.091z" />
+                    <path d="M550 600.909h10v20.909h-10z" />
+                    <path d="M540.909 610h18.182v10h-18.182z" />
+                    <circle cx="570" cy="610" r="9.091" />
+                    <path d="M560 600h10v19.091h-10z" />
+                    <path
+                      d="M560.909 600h18.182v10h-18.182zM560 610h19.091v10H560z"
+                    />
+                    <circle cx="610" cy="610" r="9.091" />
+                    <circle cx="650" cy="610" r="9.091" />
+                    <path d="M640.909 600H660v10h-19.091z" />
+                    <path d="M650 600.909h10v20.909h-10z" />
+                    <path d="M640.909 610h18.182v10h-18.182z" />
+                    <circle cx="670" cy="610" r="9.091" />
+                    <path d="M660 600h10v19.091h-10z" />
+                    <path
+                      d="M660.909 600h18.182v10h-18.182zM660 610h19.091v10H660z"
+                    />
+                    <circle cx="250" cy="630" r="9.091" />
+                    <path d="M250 620.909h10v20.909h-10z" />
+                    <path d="M240.909 630h18.182v10h-18.182z" />
+                    <circle cx="270" cy="630" r="9.091" />
+                    <path d="M260 620.909h10v18.182h-10z" />
+                    <path d="M260 630h19.091v10H260z" />
+                    <circle cx="310" cy="630" r="9.091" />
+                    <path
+                      d="M300.909 620h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="410" cy="630" r="9.091" />
+                    <path d="M400.909 620h18.182v10h-18.182z" />
+                    <circle cx="470" cy="630" r="9.091" />
+                    <path d="M460.909 620h18.182v10h-18.182z" />
+                    <path d="M470 620.909h10v18.182h-10z" />
+                    <circle cx="490" cy="630" r="9.091" />
+                    <path d="M480 620.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M480.909 630h18.182v10h-18.182z" />
+                    <circle cx="510" cy="630" r="9.091" />
+                    <path d="M500 620.909h10v18.182h-10z" />
+                    <path d="M500 630h19.091v10H500z" />
+                    <circle cx="550" cy="630" r="9.091" />
+                    <path d="M540.909 620H560v10h-19.091z" />
+                    <path d="M550 620.909h10v18.182h-10z" />
+                    <circle cx="570" cy="630" r="9.091" />
+                    <path d="M560 620h10v19.091h-10z" />
+                    <path
+                      d="M560.909 620h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="650" cy="630" r="9.091" />
+                    <path d="M640.909 620H660v10h-19.091z" />
+                    <path d="M650 620.909h10v18.182h-10z" />
+                    <path d="M640.909 630h18.182v10h-18.182z" />
+                    <circle cx="670" cy="630" r="9.091" />
+                    <path d="M660 620h10v19.091h-10z" />
+                    <path d="M660.909 620h18.182v10h-18.182z" />
+                    <path d="M670 620.909h10v18.182h-10z" />
+                    <circle cx="690" cy="630" r="9.091" />
+                    <path d="M680 620.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M680.909 630h18.182v10h-18.182z" />
+                    <circle cx="710" cy="630" r="9.091" />
+                    <path d="M700 620.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M700 630h19.091v10H700z" />
+                    <circle cx="730" cy="630" r="9.091" />
+                    <path d="M720 620.909h10v18.182h-10z" />
+                    <circle cx="250" cy="650" r="9.091" />
+                    <path d="M240.909 640H260v10h-19.091z" />
+                    <path d="M250 640.909h10v18.182h-10z" />
+                    <path d="M240.909 650h18.182v10h-18.182z" />
+                    <circle cx="270" cy="650" r="9.091" />
+                    <path d="M260 640h10v19.091h-10z" />
+                    <path d="M260.909 640h18.182v10h-18.182z" />
+                    <path d="M270 640.909h10v18.182h-10z" />
+                    <circle cx="290" cy="650" r="9.091" />
+                    <path d="M280 640.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M280.909 650h18.182v10h-18.182z" />
+                    <circle cx="310" cy="650" r="9.091" />
+                    <path d="M300 640.909h10v18.182h-10z" />
+                    <path d="M300.909 640h18.182v10h-18.182z" />
+                    <path d="M310 640.909h10v18.182h-10z" />
+                    <circle cx="330" cy="650" r="9.091" />
+                    <path d="M320 640.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="350" cy="650" r="9.091" />
+                    <path d="M340 640.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="370" cy="650" r="9.091" />
+                    <path d="M360 640.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="390" cy="650" r="9.091" />
+                    <path d="M380 640.909h10v18.182h-10z" />
+                    <path d="M380.909 650h18.182v10h-18.182z" />
+                    <circle cx="450" cy="650" r="9.091" />
+                    <circle cx="490" cy="650" r="9.091" />
+                    <path d="M480.909 640H500v10h-19.091z" />
+                    <path d="M490 640.909h10v20.909h-10z" />
+                    <path d="M480.909 650h18.182v10h-18.182z" />
+                    <circle cx="510" cy="650" r="9.091" />
+                    <path d="M500 640h10v19.091h-10z" />
+                    <path d="M500.909 640h18.182v10h-18.182z" />
+                    <path d="M510 640.909h10v20.909h-10z" />
+                    <path d="M500 650h19.091v10H500z" />
+                    <circle cx="530" cy="650" r="9.091" />
+                    <path d="M520 640.909h10v18.182h-10z" />
+                    <path d="M520 650h19.091v10H520z" />
+                    <circle cx="570" cy="650" r="9.091" />
+                    <path d="M560.909 640h18.182v10h-18.182z" />
+                    <path d="M570 640.909h10v18.182h-10z" />
+                    <circle cx="590" cy="650" r="9.091" />
+                    <path d="M580 640.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M580.909 650h18.182v10h-18.182z" />
+                    <circle cx="610" cy="650" r="9.091" />
+                    <path d="M600 640.909h10v18.182h-10zm10 0h10v20.909h-10z" />
+                    <path d="M600 650h19.091v10H600z" />
+                    <circle cx="630" cy="650" r="9.091" />
+                    <path d="M620 640.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M620 650h19.091v10H620z" />
+                    <circle cx="650" cy="650" r="9.091" />
+                    <path d="M640 640.909h10v18.182h-10z" />
+                    <path d="M640.909 640h18.182v10h-18.182z" />
+                    <circle cx="690" cy="650" r="9.091" />
+                    <path d="M680.909 640H700v10h-19.091z" />
+                    <path d="M690 640.909h10v20.909h-10z" />
+                    <path d="M680.909 650h18.182v10h-18.182z" />
+                    <circle cx="710" cy="650" r="9.091" />
+                    <path d="M700 640h10v19.091h-10z" />
+                    <path
+                      d="M700.909 640h18.182v10h-18.182zM700 650h19.091v10H700z"
+                    />
+                    <circle cx="250" cy="670" r="9.091" />
+                    <path
+                      d="M240.909 660h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="290" cy="670" r="9.091" />
+                    <path
+                      d="M280.909 660h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="390" cy="670" r="9.091" />
+                    <path d="M380.909 660h18.182v10h-18.182z" />
+                    <path d="M390 660.909h10v18.182h-10z" />
+                    <circle cx="410" cy="670" r="9.091" />
+                    <path d="M400 660.909h10v18.182h-10z" />
+                    <circle cx="490" cy="670" r="9.091" />
+                    <path d="M480.909 660H500v10h-19.091z" />
+                    <path d="M490 660.909h10v18.182h-10z" />
+                    <circle cx="510" cy="670" r="9.091" />
+                    <path d="M500 660h10v19.091h-10z" />
+                    <path d="M500.909 660H520v10h-19.091z" />
+                    <path d="M510 660.909h10v18.182h-10z" />
+                    <circle cx="530" cy="670" r="9.091" />
+                    <path d="M520 660h10v19.091h-10z" />
+                    <path
+                      d="M520.909 660h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="590" cy="670" r="9.091" />
+                    <path d="M580.909 660H600v10h-19.091z" />
+                    <path d="M590 660.909h10v20.909h-10z" />
+                    <path d="M580.909 670h18.182v10h-18.182z" />
+                    <circle cx="610" cy="670" r="9.091" />
+                    <path d="M600 660h10v19.091h-10z" />
+                    <path d="M600.909 660H620v10h-19.091z" />
+                    <path d="M610 660.909h10v20.909h-10z" />
+                    <path d="M600 670h19.091v10H600z" />
+                    <circle cx="630" cy="670" r="9.091" />
+                    <path d="M620 660h10v19.091h-10z" />
+                    <path
+                      d="M620.909 660h18.182v10h-18.182zM620 670h19.091v10H620z"
+                    />
+                    <circle cx="690" cy="670" r="9.091" />
+                    <path d="M680.909 660H700v10h-19.091z" />
+                    <path d="M690 660.909h10v18.182h-10z" />
+                    <circle cx="710" cy="670" r="9.091" />
+                    <path d="M700 660h10v19.091h-10z" />
+                    <path d="M700.909 660h18.182v10h-18.182z" />
+                    <circle cx="250" cy="690" r="9.091" />
+                    <path d="M240.909 680h18.182v10h-18.182z" />
+                    <path d="M250 680.909h10v18.182h-10z" />
+                    <circle cx="270" cy="690" r="9.091" />
+                    <path d="M260 680.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="290" cy="690" r="9.091" />
+                    <path d="M280 680.909h10v18.182h-10z" />
+                    <path d="M280.909 680h18.182v10h-18.182z" />
+                    <path d="M290 680.909h10v18.182h-10z" />
+                    <circle cx="310" cy="690" r="9.091" />
+                    <path d="M300 680.909h10v18.182h-10z" />
+                    <path d="M300.909 690h18.182v10h-18.182z" />
+                    <circle cx="370" cy="690" r="9.091" />
+                    <path d="M360.909 690h18.182v10h-18.182z" />
+                    <circle cx="430" cy="690" r="9.091" />
+                    <circle cx="530" cy="690" r="9.091" />
+                    <path d="M520.909 680h18.182v10h-18.182z" />
+                    <path d="M530 680.909h10v18.182h-10z" />
+                    <circle cx="550" cy="690" r="9.091" />
+                    <path d="M540 680.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M540.909 690h18.182v10h-18.182z" />
+                    <circle cx="570" cy="690" r="9.091" />
+                    <path d="M560 680.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="590" cy="690" r="9.091" />
+                    <path d="M580 680.909h10v18.182h-10z" />
+                    <path d="M580.909 680H600v10h-19.091z" />
+                    <path d="M590 680.909h10v18.182h-10z" />
+                    <circle cx="610" cy="690" r="9.091" />
+                    <path d="M600 680h10v19.091h-10z" />
+                    <path d="M600.909 680H620v10h-19.091z" />
+                    <path d="M610 680.909h10v18.182h-10z" />
+                    <circle cx="630" cy="690" r="9.091" />
+                    <path d="M620 680h10v19.091h-10z" />
+                    <path d="M620.909 680h18.182v10h-18.182z" />
+                    <circle cx="670" cy="690" r="9.091" />
+                    <circle cx="310" cy="710" r="9.091" />
+                    <path d="M300.909 700h18.182v10h-18.182z" />
+                    <path d="M310 700.909h10v18.182h-10z" />
+                    <path d="M300.909 710h18.182v10h-18.182z" />
+                    <circle cx="330" cy="710" r="9.091" />
+                    <path d="M320 700.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="350" cy="710" r="9.091" />
+                    <path d="M340 700.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="370" cy="710" r="9.091" />
+                    <path d="M360 700.909h10v18.182h-10z" />
+                    <path
+                      d="M360.909 700h18.182v10h-18.182zm0 10h18.182v10h-18.182z"
+                    />
+                    <circle cx="410" cy="710" r="9.091" />
+                    <circle cx="470" cy="710" r="9.091" />
+                    <path d="M470 700.909h10v18.182h-10z" />
+                    <circle cx="490" cy="710" r="9.091" />
+                    <path d="M480 700.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M480.909 710h18.182v10h-18.182z" />
+                    <circle cx="510" cy="710" r="9.091" />
+                    <path d="M500 700.909h10v18.182h-10z" />
+                    <circle cx="550" cy="710" r="9.091" />
+                    <path d="M540.909 700h18.182v10h-18.182z" />
+                    <circle cx="650" cy="710" r="9.091" />
+                    <circle cx="690" cy="710" r="9.091" />
+                    <path d="M690 700.909h10v18.182h-10z" />
+                    <circle cx="710" cy="710" r="9.091" />
+                    <path d="M700 700.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <path d="M700.909 710h18.182v10h-18.182z" />
+                    <circle cx="730" cy="710" r="9.091" />
+                    <path d="M720 700.909h10v18.182h-10z" />
+                    <circle cx="250" cy="730" r="9.091" />
+                    <path d="M250 720.909h10v18.182h-10z" />
+                    <circle cx="270" cy="730" r="9.091" />
+                    <path d="M260 720.909h10v18.182h-10z" />
+                    <circle cx="310" cy="730" r="9.091" />
+                    <path d="M300.909 720h18.182v10h-18.182z" />
+                    <circle cx="370" cy="730" r="9.091" />
+                    <path d="M360.909 720h18.182v10h-18.182z" />
+                    <circle cx="430" cy="730" r="9.091" />
+                    <path d="M430 720.909h10v18.182h-10z" />
+                    <circle cx="450" cy="730" r="9.091" />
+                    <path d="M440 720.909h10v18.182h-10z" />
+                    <circle cx="490" cy="730" r="9.091" />
+                    <path d="M480.909 720h18.182v10h-18.182z" />
+                    <circle cx="570" cy="730" r="9.091" />
+                    <path d="M570 720.909h10v18.182h-10z" />
+                    <circle cx="590" cy="730" r="9.091" />
+                    <path d="M580 720.909h10v18.182h-10zm10 0h10v18.182h-10z" />
+                    <circle cx="610" cy="730" r="9.091" />
+                    <path d="M600 720.909h10v18.182h-10z" />
+                    <circle cx="710" cy="730" r="9.091" />
+                    <path d="M700.909 720h18.182v10h-18.182z" />
+                    <path
+                      fill-rule="evenodd"
+                      d="M80 80h140v140H80Zm20 20h100v100H100Zm500-20h140v140H600Zm20 20h100v100H620Z"
+                      shape-rendering="crispEdges"
+                    />
+                    <path
+                      d="M120 120h60v60h-60zm520 0h60v60h-60z"
+                      shape-rendering="crispEdges"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      d="M80 600h140v140H80Zm20 20h100v100H100Z"
+                      shape-rendering="crispEdges"
+                    />
+                    <path
+                      d="M120 640h60v60h-60z"
+                      shape-rendering="crispEdges"
+                    />
+                  </svg>
+                </svg>
+              </div>
+              <div>
+                <div>You can find the slide and sample code here:</div>
+                <a href="https://github.com/albertalrisa/20260123-vscodeext">
+                  https://github.com/albertalrisa/20260123-vscodeext
+                </a>
+                <div class="mt-4 text-[0.4rem]">
+                  (And the source code, but I can't promise the slide source
+                  code is tidy)
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+    <script src="dist/web-components.js" type="module"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script>
+      // More info about initialization & config:
+      // - https://revealjs.com/initialization/
+      // - https://revealjs.com/config/
+      Reveal.initialize({
+        hash: true,
+
+        // Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealMarkdown, RevealNotes],
+      })
+    </script>
+  </body>
+</html>
