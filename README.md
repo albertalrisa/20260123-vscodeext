@@ -6,9 +6,7 @@ This presentation is written using `reveal.js`, using Tailwind for styling, Shik
 
 ## Slide
 
-TBA!
-
-<!-- [Slide can be viewed here](https://20260123-vscodeext.netlify.app/) -->
+[Slide can be viewed here](https://20260123-vscodeext.netlify.app/)
 
 ## Download links
 
